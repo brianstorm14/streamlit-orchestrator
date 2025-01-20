@@ -1,7 +1,6 @@
 import streamlit as st
-import subprocess
-import sys
-import os
+
+from utils.nueva_app import add_streamlit_app
 
 st.header("Interfaz de control de desarrollos.")
 
@@ -22,15 +21,7 @@ if st.button("Agregar"):
             st.session_state.puertos.append(8501 + st.session_state.num_desarrollos)
         st.session_state.num_desarrollos += 1
 
-        script_name = f"{nombre_input}.py"
-        if os.path.exists(script_name):
-            try:
-                st.write(f"Ejecutando {nombre_input}")
-                subprocess.Popen(["streamlit","run",script_name,"--server.port",f"{puerto_input}"])
-            except Exception as e:
-                st.error(f"Error al intentar levantar el script: {e}")
-        else:
-            st.error(f"El script {script_name} no existe en el directorio.")
+        add_streamlit_app(nombre_input, puerto_input)
     else:
         st.warning("Por favor, ingresa un nombre para el desarrollo.")
 
@@ -50,3 +41,4 @@ for i in range(st.session_state.num_desarrollos):
         Tirar = st.button(f"Tirar {nombre_input}", key=f"Tirar_{i}", use_container_width=True)
         if Tirar:
             st.write(f"Parando app para Desarrollo {st.session_state.desarrollos[i]}")
+            
