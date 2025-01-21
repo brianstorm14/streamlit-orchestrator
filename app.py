@@ -1,6 +1,7 @@
 import streamlit as st
 
 from utils.nueva_app import add_streamlit_app
+from utils.stop_app import stop_streamlit_app
 
 st.header("Interfaz de control de desarrollos.")
 
@@ -11,6 +12,7 @@ if "num_desarrollos" not in st.session_state:
 
 nombre_input = st.text_input("Nombre del Desarrollo", "")
 puerto_input = st.text_input("Puerto del Desarrollo", "")
+PID_FILE = "desarrollos_pids.json"
 
 if st.button("Agregar"):
     if nombre_input:
@@ -21,7 +23,7 @@ if st.button("Agregar"):
             st.session_state.puertos.append(8501 + st.session_state.num_desarrollos)
         st.session_state.num_desarrollos += 1
 
-        add_streamlit_app(nombre_input, puerto_input)
+        add_streamlit_app(nombre_input, puerto_input, PID_FILE)
     else:
         st.warning("Por favor, ingresa un nombre para el desarrollo.")
 
@@ -32,13 +34,13 @@ for i in range(st.session_state.num_desarrollos):
         st.markdown(f"**Desarrollo:** {st.session_state.desarrollos[i]}")
 
     with st_cols_header[1]:
-        estado = "En proceso"
+        estado = "Ejecutando"
         color = "#32CD32"
         st.markdown(f"<p style='color:{color}; font-weight:bold;'>{estado}</p>", unsafe_allow_html=True)
         st.write("Puerto:", st.session_state.puertos[i])
 
     with st_cols_header[2]:
-        Tirar = st.button(f"Tirar {nombre_input}", key=f"Tirar_{i}", use_container_width=True)
+        Tirar = st.button(f"Tirar {st.session_state.desarrollos[i]}", key=f"Tirar_{i}", use_container_width=True)
         if Tirar:
-            st.write(f"Parando app para Desarrollo {st.session_state.desarrollos[i]}")
-            
+            st.write(f"Parando el desarrollo {st.session_state.desarrollos[i]}")
+            stop_streamlit_app(st.session_state.desarrollos[i], PID_FILE)
