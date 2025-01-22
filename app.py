@@ -9,9 +9,11 @@ if "num_desarrollos" not in st.session_state:
     st.session_state.num_desarrollos = 0
     st.session_state.desarrollos = []
     st.session_state.puertos = []
+    st.session_state.config = []
 
 nombre_input = st.text_input("Nombre del Desarrollo", "")
 puerto_input = st.text_input("Puerto del Desarrollo", "")
+config_input = st.text_input("Configuración adicional", "")
 PID_FILE = "desarrollos_pids.json"
 
 if st.button("Agregar"):
@@ -21,9 +23,10 @@ if st.button("Agregar"):
             st.session_state.puertos.append(int(puerto_input))
         else:
             st.session_state.puertos.append(8501 + st.session_state.num_desarrollos)
+        st.session_state.config.append(config_input)
         st.session_state.num_desarrollos += 1
 
-        add_streamlit_app(nombre_input, puerto_input, PID_FILE)
+        add_streamlit_app(nombre_input, puerto_input, config_input, PID_FILE)
     else:
         st.warning("Por favor, ingresa un nombre para el desarrollo.")
 
