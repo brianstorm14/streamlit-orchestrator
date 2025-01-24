@@ -20,3 +20,13 @@ def parsear_config(config_str):
         except Exception as e:
             st.error(f"Error al procesar la configuración: {e}")
     return config_dict
+
+def configuracion(key, value):
+    args = []
+    if isinstance(value, dict):
+        for sub_key, sub_value in value.items():
+            args.extend(configuracion(f"{key}.{sub_key}", sub_value))
+    else:
+        args.append(f"--{key}")
+        args.append(str(value))
+    return args

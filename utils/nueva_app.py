@@ -4,6 +4,7 @@ import json
 import streamlit as st
 
 from utils.config_input import parsear_config
+from utils.config_input import configuracion
 
 def add_app(name, puerto, config, pid_file):
     nombre_script = f"{name}.py"
@@ -11,22 +12,11 @@ def add_app(name, puerto, config, pid_file):
         try:
             config_dict = parsear_config(config)
 
-            def configuracion(key, value):
-                args = []
-                if isinstance(value, dict):
-                    for sub_key, sub_value in value.items():
-                        args.extend(configuracion(f"{key}.{sub_key}", sub_value))
-                else:
-                    args.append(f"--{key}")
-                    args.append(str(value))
-                return args
-
             config_args = []
             for key, value in config_dict.items():
                 config_args.extend(configuracion(key, value))
             
             command = ["streamlit", "run", nombre_script, "--server.port", f"{puerto}"] + config_args
-            st.write(f"Comando ejecutado: {' '.join(command)}")
 
             process = subprocess.Popen(
                 command,
