@@ -1,7 +1,7 @@
 import streamlit as st
 
 from utils.nueva_app import add_app
-from utils.stop_app import stop_streamlit_app
+from utils.stop_app import stop_app
 from utils.revisar_puerto import puerto_disponible
 
 st.header("Interfaz de control de desarrollos.")
@@ -51,4 +51,4 @@ for i in range(st.session_state.num_desarrollos):
         Tirar = st.button(f"Tirar {st.session_state.desarrollos[i]}", key=f"Tirar_{i}", use_container_width=True)
         if Tirar:
             st.write(f"Parando el desarrollo {st.session_state.desarrollos[i]}")
-            stop_streamlit_app(st.session_state.desarrollos[i], PID_FILE)
+            stop_app(st.session_state.desarrollos[i], PID_FILE)

@@ -3,7 +3,7 @@ import signal
 import json
 import streamlit as st
 
-def stop_streamlit_app(name, pid_file):
+def stop_app(name, pid_file):
     if not os.path.exists(pid_file):
         st.error("No se encontró el archivo de procesos.")
         return
@@ -16,7 +16,10 @@ def stop_streamlit_app(name, pid_file):
             st.error(f"No se encontró el proceso para {name}.")
             return
 
-        pid = data[name]
+        pid = data[name].get("pid")
+        if not isinstance(pid, int):
+            st.error(f"PID inválido para {name}.")
+            return
 
         os.killpg(os.getpgid(pid), signal.SIGTERM)
         st.success(f"Proceso {name} detenido con éxito.")
