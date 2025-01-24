@@ -1,9 +1,10 @@
 {
-    "app2": {
-        "pid": 2888,
+    "app3": {
+        "pid": 3217,
         "puerto": "8505",
         "theme": {
-            "base": "light"
+            "base": "light",
+            "textColor": "#333333"
         }
     }
 }
