@@ -35,10 +35,6 @@ def add_app(name, puerto, config, pid_file):
                 preexec_fn=os.setsid,
             )
 
-            stdout, stderr = process.communicate()
-            st.write(f"STDOUT: {stdout.decode('utf-8')}")
-            st.write(f"STDERR: {stderr.decode('utf-8')}")
-
             data = {}
             if os.path.exists(pid_file):
                 with open(pid_file, "r") as f:

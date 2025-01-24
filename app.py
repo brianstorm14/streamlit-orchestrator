@@ -2,6 +2,7 @@ import streamlit as st
 
 from utils.nueva_app import add_app
 from utils.stop_app import stop_streamlit_app
+from utils.revisar_puerto import puerto_disponible
 
 st.header("Interfaz de control de desarrollos.")
 
@@ -19,23 +20,20 @@ config_input = st.text_input("Configuración adicional", "")
 PID_FILE = "desarrollos_pids.json"
 
 if st.button("Agregar"):
-    if nombre_input:
+    if not nombre_input:
+        st.warning("Por favor, ingresa un nombre para el desarrollo.")
+    elif not puerto_input.isdigit():
+        st.warning("Por favor, ingresa un puerto válido (número).")
+    elif not puerto_disponible(int(puerto_input)):
+        st.warning("El puerto ingresado ya está en uso. Por favor, elige otro.")
+    else:
         st.session_state.desarrollos.append(nombre_input)
-        
-        if puerto_input.isdigit() and is_port_available(int(puerto_input)):
-            st.session_state.puertos.append(int(puerto_input))
-        elif not puerto_input.isdigit():
-            st.warning("Por favor, ingresa un puerto válido (número).")
-        else:
-            st.warning("El puerto ingresado ya está en uso. Por favor, elige otro.")
-        
+        st.session_state.puertos.append(int(puerto_input))
         st.session_state.config.append(config_input)
-        
         st.session_state.num_desarrollos += 1
 
         add_app(nombre_input, puerto_input, config_input, PID_FILE)
-    else:
-        st.warning("Por favor, ingresa un nombre para el desarrollo.")
+
 
 for i in range(st.session_state.num_desarrollos):
     st_cols_header = st.columns(3)
