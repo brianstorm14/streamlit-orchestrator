@@ -1,10 +1,1 @@
-{
-    "app3": {
-        "pid": 3217,
-        "puerto": "8505",
-        "theme": {
-            "base": "light",
-            "textColor": "#333333"
-        }
-    }
-}
+{}
