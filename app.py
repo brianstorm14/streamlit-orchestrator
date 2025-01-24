@@ -11,8 +11,10 @@ if "num_desarrollos" not in st.session_state:
     st.session_state.puertos = []
     st.session_state.config = []
 
-nombre_input = st.text_input("Nombre del Desarrollo", "")
-puerto_input = st.text_input("Puerto del Desarrollo", "")
+st_cols_inputs = st.columns(2)
+
+nombre_input = st_cols_inputs[0].text_input("Nombre del Desarrollo", "")
+puerto_input = st_cols_inputs[1].text_input("Puerto del Desarrollo", "")
 config_input = st.text_input("Configuración adicional", "")
 PID_FILE = "desarrollos_pids.json"
 
