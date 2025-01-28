@@ -7,67 +7,68 @@ import streamlit as st
 from utils.config_input import parsear_config
 from utils.config_input import configuracion
 
-def add_app(name, puerto, config, pid_file):
+def add_app(name, puerto, config, pid_file, so):
+    st.write(so)
     ruta_proyecto, nombre_script = os.path.split(name)
     sistema_operativo = platform.system()
 
-    if not os.path.exists(os.path.join(ruta_proyecto, nombre_script)):
-        st.error(f"{nombre_script} no fue encontrado en {ruta_proyecto}.")
-        return
+    config_dict = parsear_config(config)
     
-    try:
-        
-        config_dict = parsear_config(config)
-        
-        config_args = []
+    config_args = []
 
-        for key, value in config_dict.items():
-            config_args.extend(configuracion(key, value))
+    for key, value in config_dict.items():
+        config_args.extend(configuracion(key, value))
 
-        if sistema_operativo == "Windows":
-            script_file = f"{nombre_script}.bat"
-            script_content = f"""
-            @echo off
-            cd {ruta_proyecto}
-            call venv\\Scripts\\activate
-            streamlit run {nombre_script} --server.port {puerto} {' '.join(config_args)}
-            """
-        else:
-            script_file = f"{nombre_script}.sh"
-            script_content = f"""
-            # bash
-            cd {ruta_proyecto}
-            source venv/bin/activate
-            streamlit run {nombre_script} --server.port {puerto} {' '.join(config_args)}
-            """
+    script_bat = f"{nombre_script}.bat"
+    script_content_bat = f"""
+    @echo off
+    cd {ruta_proyecto}
+    call venv\\Scripts\\activate
+    streamlit run {nombre_script} --server.port {puerto} {' '.join(config_args)}
+    """
 
-        with open(script_file, "w") as f:
-            f.write(script_content)
+    with open(script_bat, "w") as f:
+        f.write(script_content_bat)
 
+    script_sh = f"{nombre_script}.sh"
+    script_content_sh = f"""
+    # bash
+    cd {ruta_proyecto}
+    source venv/bin/activate
+    streamlit run {nombre_script} --server.port {puerto} {' '.join(config_args)}
+    """
+
+    with open(script_sh, "w") as f:
+        f.write(script_content_sh)
+
+    if so == "Windows":
         process = subprocess.Popen(
-            script_file if sistema_operativo == "Windows" else ["bash", script_file],
+            script_bat,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            shell=True if sistema_operativo == "Windows" else None,
-            preexec_fn=os.setsid if sistema_operativo != "Windows" else None,
+            shell=True
+        )
+    else:
+        process = subprocess.Popen(
+            ["bash", script_sh],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            preexec_fn=os.setsid
         )
 
-        data = {}
-        if os.path.exists(pid_file):
-            with open(pid_file, "r") as f:
-                data = json.load(f)
+    data = {}
+    if os.path.exists(pid_file):
+        with open(pid_file, "r") as f:
+            data = json.load(f)
 
-        data[nombre_script] = {
-            "pid": process.pid,
-            "puerto": puerto,
-            "nombre": nombre_script,
-            **config_dict
-        }
+    data[nombre_script] = {
+        "pid": process.pid,
+        "puerto": puerto,
+        "nombre": nombre_script,
+        **config_dict
+    }
 
-        with open(pid_file, "w") as f:
-            json.dump(data, f, indent=4)
+    with open(pid_file, "w") as f:
+        json.dump(data, f, indent=4)
 
-        st.success(f"{nombre_script} iniciado en el puerto {puerto}.")
-
-    except Exception as e:
-        st.error(f"Error al intentar levantar el script: {e}")
+    st.success(f"Desarrollo {nombre_script} fue iniciado con éxito")
