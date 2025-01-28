@@ -11,14 +11,16 @@ def add_app(name, puerto, config, pid_file):
     ruta_proyecto, nombre_script = os.path.split(name)
     sistema_operativo = platform.system()
 
-
     if not os.path.exists(os.path.join(ruta_proyecto, nombre_script)):
-        st.error(f"El script {nombre_script} no fue encontrado en la ruta_proyecto {ruta_proyecto}.")
+        st.error(f"{nombre_script} no fue encontrado en {ruta_proyecto}.")
         return
-
+    
     try:
+        
         config_dict = parsear_config(config)
+        
         config_args = []
+
         for key, value in config_dict.items():
             config_args.extend(configuracion(key, value))
 
@@ -33,7 +35,7 @@ def add_app(name, puerto, config, pid_file):
         else:
             script_file = f"{nombre_script}.sh"
             script_content = f"""
-            #!/bin/bash
+            # bash
             cd {ruta_proyecto}
             source venv/bin/activate
             streamlit run {nombre_script} --server.port {puerto} {' '.join(config_args)}
@@ -41,9 +43,6 @@ def add_app(name, puerto, config, pid_file):
 
         with open(script_file, "w") as f:
             f.write(script_content)
-
-        if sistema_operativo != "Windows":
-            os.chmod(script_file, 0o755)
 
         process = subprocess.Popen(
             script_file if sistema_operativo == "Windows" else ["bash", script_file],
@@ -56,11 +55,7 @@ def add_app(name, puerto, config, pid_file):
         data = {}
         if os.path.exists(pid_file):
             with open(pid_file, "r") as f:
-                try:
-                    data = json.load(f)
-                except json.JSONDecodeError:
-                    st.warning(f"El archivo {pid_file} está vacío o es incorrecto.")
-                    data = {}
+                data = json.load(f)
 
         data[nombre_script] = {
             "pid": process.pid,
@@ -72,7 +67,7 @@ def add_app(name, puerto, config, pid_file):
         with open(pid_file, "w") as f:
             json.dump(data, f, indent=4)
 
-        st.success(f"Desarrollo {nombre_script} iniciado en el puerto {puerto}.")
+        st.success(f"{nombre_script} iniciado en el puerto {puerto}.")
 
     except Exception as e:
         st.error(f"Error al intentar levantar el script: {e}")

@@ -26,7 +26,7 @@ if st.button("Agregar"):
     if not nombre_input:
         st.warning("Por favor, ingresa un nombre para el desarrollo.")
     elif not puerto_input.isdigit():
-        st.warning("Por favor, ingresa un puerto válido (número).")
+        st.warning("Por favor, ingresa un NÚMERO de puerto válido.")
     elif not puerto_disponible(int(puerto_input)):
         st.warning("El puerto ingresado ya está en uso. Por favor, elige otro.")
     else:
@@ -36,7 +36,6 @@ if st.button("Agregar"):
         st.session_state.num_desarrollos += 1
 
         add_app(nombre_input, puerto_input, config_input, PID_FILE)
-
 
 for i in range(st.session_state.num_desarrollos):
     st_cols_header = st.columns(3)
@@ -51,7 +50,7 @@ for i in range(st.session_state.num_desarrollos):
         st.write("Puerto:", st.session_state.puertos[i])
 
     with st_cols_header[2]:
-        Tirar = st.button(f"Tirar {nombre_script}", key=f"Tirar_{i}", use_container_width=True)
+        Tirar = st.button(f"Tirar {nombre_script}", key=f"Tirar{nombre_script}", use_container_width=True)
         if Tirar:
             st.write(f"Parando el desarrollo {nombre_script}")
             stop_app(nombre_script, PID_FILE)
