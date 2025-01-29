@@ -1,5 +1,6 @@
-import streamlit as st
 import os
+import json
+import streamlit as st
 
 from utils.nueva_app import add_app
 from utils.stop_app import stop_app
@@ -7,9 +8,12 @@ from utils.revisar_puerto import puerto_disponible
 
 st.title("Interfaz de control de desarrollos")
 
+PID_FILE = "desarrollos_pids.json"
+
 if "num_desarrollos" not in st.session_state:
     st.session_state.num_desarrollos = 0
     st.session_state.desarrollos = []
+    st.session_state.nombre = []
     st.session_state.puertos = []
     st.session_state.config = []
 
@@ -23,7 +27,6 @@ st_col_name, st_col_port = st.columns([3, 1])
 nombre_input = st_col_name.text_input("Ruta y nombre del Desarrollo (ruta/al/proyecto/app.py)", "")
 puerto_input = st_col_port.text_input("Puerto del Desarrollo", "")
 config_input = st.text_input("Configuración adicional", "")
-PID_FILE = "desarrollos_pids.json"
 
 ruta_proyecto, nombre_script = os.path.split(nombre_input)
 
@@ -36,6 +39,7 @@ if st.button("Agregar"):
         st.warning("El puerto ingresado ya está en uso. Por favor, elige otro.")
     else:
         st.session_state.desarrollos.append(nombre_input)
+        st.session_state.nombre.append(nombre_script)
         st.session_state.puertos.append(int(puerto_input))
         st.session_state.config.append(config_input)
         st.session_state.num_desarrollos += 1

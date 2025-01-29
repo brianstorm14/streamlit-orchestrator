@@ -8,9 +8,7 @@ from utils.config_input import parsear_config
 from utils.config_input import configuracion
 
 def add_app(name, puerto, config, pid_file, so):
-    st.write(so)
     ruta_proyecto, nombre_script = os.path.split(name)
-    sistema_operativo = platform.system()
 
     config_dict = parsear_config(config)
     
@@ -62,9 +60,10 @@ def add_app(name, puerto, config, pid_file, so):
             data = json.load(f)
 
     data[nombre_script] = {
+        "nombre": nombre_script,
         "pid": process.pid,
         "puerto": puerto,
-        "nombre": nombre_script,
+        "status": "Ejecutando",
         **config_dict
     }
 
