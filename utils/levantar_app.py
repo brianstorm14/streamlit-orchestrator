@@ -1,18 +1,20 @@
 import os
 import subprocess
-import json
-import streamlit as st
 
-from utils.config_input import parsear_config
 from utils.config_input import configuracion
 
-def add_app(name, puerto, config, pid_file, so):
-    ruta_proyecto, nombre_script = os.path.split(name)
-
-    config_dict = parsear_config(config)
+def levantar_app(info, so):
+    ruta_completa = info["ruta_completa"]
+    puerto = info["puerto"]
     
-    config_args = []
+    ruta_proyecto, nombre_script = os.path.split(ruta_completa)
 
+    config_dict = {
+        k: v 
+        for k, v in info.items() if k not in ["ruta_completa", "puerto", "pid", "status", "nombre"]
+    }
+
+    config_args = []
     for key, value in config_dict.items():
         config_args.extend(configuracion(key, value))
 
@@ -29,7 +31,7 @@ def add_app(name, puerto, config, pid_file, so):
 
     script_sh = f"{nombre_script}.sh"
     script_content_sh = f"""
-    # bash
+    #!/bin/bash
     cd {ruta_proyecto}
     source venv/bin/activate
     streamlit run {nombre_script} --server.port {puerto} {' '.join(config_args)}
@@ -53,21 +55,4 @@ def add_app(name, puerto, config, pid_file, so):
             preexec_fn=os.setsid
         )
 
-    data = {}
-    if os.path.exists(pid_file):
-        with open(pid_file, "r") as f:
-            data = json.load(f)
-
-    data[nombre_script] = {
-        "nombre": nombre_script,
-        "ruta_completa": name,
-        "pid": process.pid,
-        "puerto": puerto,
-        "status": "Ejecutando",
-        **config_dict
-    }
-
-    with open(pid_file, "w") as f:
-        json.dump(data, f, indent=4)
-
-    st.success(f"Desarrollo {nombre_script} fue iniciado con éxito")
+    return process.pid

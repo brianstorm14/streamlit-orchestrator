@@ -5,6 +5,7 @@ import streamlit as st
 from utils.nueva_app import add_app
 from utils.stop_app import stop_app
 from utils.revisar_puerto import puerto_disponible
+from utils.levantar_app import levantar_app
 
 st.title("Interfaz de control de desarrollos")
 
@@ -15,7 +16,25 @@ if "num_desarrollos" not in st.session_state:
     st.session_state.desarrollos = []
     st.session_state.nombre = []
     st.session_state.puertos = []
+    st.session_state.status = []
     st.session_state.config = []
+
+if os.path.exists(PID_FILE):
+    with open(PID_FILE, "r") as f:
+        datos = json.load(f)
+        for script, desarr in datos.items():
+            ruta_completa = desarr["ruta_completa"]
+            
+            st.session_state.desarrollos.append(ruta_completa)
+            st.session_state.puertos.append(desarr["puerto"])
+            st.session_state.status.append(desarr["status"])
+            st.session_state.num_desarrollos += 1
+
+            if desarr["status"] == "Ejecutando":
+                nuevo_pid = levantar_app(desarr, "Linux")
+                desarr["pid"] = nuevo_pid
+                with open(PID_FILE, "w") as f:
+                    json.dump(datos, f, indent=4)
 
 st_cols_so = st.columns(3)
 sist_operativo = st_cols_so[1].selectbox("Selecciona tu Sistema Operativo", options=["Linux", "Windows"])
@@ -42,6 +61,7 @@ if st.button("Agregar"):
         st.session_state.nombre.append(nombre_script)
         st.session_state.puertos.append(int(puerto_input))
         st.session_state.config.append(config_input)
+        st.session_state.status.append("Ejecutando")
         st.session_state.num_desarrollos += 1
 
         add_app(nombre_input, puerto_input, config_input, PID_FILE, sist_operativo)
@@ -59,7 +79,7 @@ for i in range(st.session_state.num_desarrollos):
         st.write("Puerto:", st.session_state.puertos[i])
 
     with st_cols_header[2]:
-        Tirar = st.button(f"Tirar {nombre_script}", key=f"Tirar{nombre_script}", use_container_width=True)
+        Tirar = st.button(f"Tirar", key=f"Tirar{nombre_script}", use_container_width=True)
         if Tirar:
             st.write(f"Parando el desarrollo {nombre_script}")
             stop_app(nombre_script, PID_FILE)
