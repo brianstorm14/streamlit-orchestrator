@@ -6,8 +6,10 @@ from utils.config_input import parsear_config
 from utils.config_input import configuracion
 
 def add_app(name, puerto, config, pid_file, so):
-    
+
     ruta_proyecto, nombre_script = os.path.split(name)
+
+    app, _ = os.path.splitext(nombre_script)
 
     config_dict = parsear_config(config)
     
@@ -16,7 +18,7 @@ def add_app(name, puerto, config, pid_file, so):
     for key, value in config_dict.items():
         config_args.extend(configuracion(key, value))
 
-    script_bat = f"{nombre_script}.bat"
+    script_bat = f"{app}.bat"
     script_content_bat = f"""
     @echo off
     cd {ruta_proyecto}
@@ -27,7 +29,7 @@ def add_app(name, puerto, config, pid_file, so):
     with open(script_bat, "w") as f:
         f.write(script_content_bat)
 
-    script_sh = f"{nombre_script}.sh"
+    script_sh = f"{app}.sh"
     script_content_sh = f"""
     # bash
     cd {ruta_proyecto}
