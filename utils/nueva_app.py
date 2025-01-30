@@ -58,4 +58,4 @@ def add_app(name, puerto, config, pid_file, so):
     with open(pid_file, "w") as f:
         json.dump(data, f, indent=4)
 
-    st.success(f"{nombre_script} agregado en el JSON :D")
+    st.success(f"El desarrollo {nombre_script} fue agregado")

@@ -11,7 +11,7 @@ def stop_app(name, pid_file):
         pid = data[name].get("pid")
 
         os.killpg(os.getpgid(pid), signal.SIGTERM)
-        st.success(f"El desarrollo {name} fue detenido con éxito.")
+        st.success(f"El desarrollo {name} fue detenido.")
 
         data[name]["status"] = "Detenido"
         

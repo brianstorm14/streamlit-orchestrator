@@ -32,4 +32,4 @@ def levantar_app(name, pid_file, so):
     with open(pid_file, "w") as f:
         json.dump(data, f, indent=4)
 
-    st.success(f"{name} fue levantado :D.")
+    st.success(f"El desarrollo {name} fue levantado.")
