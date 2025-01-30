@@ -7,3 +7,4 @@ venv/
 venv
 .venv/
 ./venv/
+desarrollos_pids.json
