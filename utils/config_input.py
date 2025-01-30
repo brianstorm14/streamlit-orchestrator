@@ -24,8 +24,8 @@ def parsear_config(config_str):
 def configuracion(key, value):
     args = []
     if isinstance(value, dict):
-        for sub_key, sub_value in value.items():
-            args.extend(configuracion(f"{key}.{sub_key}", sub_value))
+        for key_2, value_2 in value.items():
+            args.extend(configuracion(f"{key}.{key_2}", value_2))
     else:
         args.append(f"--{key}")
         args.append(str(value))
