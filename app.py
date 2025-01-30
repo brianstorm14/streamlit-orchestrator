@@ -33,7 +33,7 @@ if st.button("Agregar"):
         st.warning("Por favor, ingresa un nombre para el desarrollo.")
     elif not puerto_input.isdigit():
         st.warning("Por favor, ingresa un NÚMERO de puerto válido.")
-    elif not puerto_disponible(int(puerto_input)):
+    elif not puerto_disponible(int(puerto_input), PID_FILE):
         st.warning("El puerto ingresado ya está en uso. Por favor, elige otro.")
     else:
         add_app(nombre_input, puerto_input, config_input, PID_FILE, sist_operativo)

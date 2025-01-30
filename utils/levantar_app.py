@@ -8,8 +8,10 @@ def levantar_app(name, pid_file, so):
     with open(pid_file, "r") as f:
         data = json.load(f)
 
+    app, _ = os.path.splitext(name)
+
     desarrollo = data[name]
-    script = f"{name}.bat" if so == "Windows" else f"{name}.sh"
+    script = f"{app}.bat" if so == "Windows" else f"{app}.sh"
 
     if so == "Windows":
         process = subprocess.Popen(
