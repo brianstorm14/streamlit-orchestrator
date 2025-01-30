@@ -4,50 +4,29 @@ import streamlit as st
 
 from utils.nueva_app import add_app
 from utils.stop_app import stop_app
-from utils.revisar_puerto import puerto_disponible
 from utils.levantar_app import levantar_app
+from utils.revisar_puerto import puerto_disponible
 
-st.title("Interfaz de control de desarrollos")
+st.title("Interfaz de Control de Desarrollos")
 
 PID_FILE = "desarrollos_pids.json"
 
-if "num_desarrollos" not in st.session_state:
-    st.session_state.num_desarrollos = 0
-    st.session_state.desarrollos = []
-    st.session_state.nombre = []
-    st.session_state.puertos = []
-    st.session_state.status = []
-    st.session_state.config = []
-
 if os.path.exists(PID_FILE):
     with open(PID_FILE, "r") as f:
-        datos = json.load(f)
-        for script, desarr in datos.items():
-            ruta_completa = desarr["ruta_completa"]
-            
-            st.session_state.desarrollos.append(ruta_completa)
-            st.session_state.puertos.append(desarr["puerto"])
-            st.session_state.status.append(desarr["status"])
-            st.session_state.num_desarrollos += 1
-
-            if desarr["status"] == "Ejecutando":
-                nuevo_pid = levantar_app(desarr, "Linux")
-                desarr["pid"] = nuevo_pid
-                with open(PID_FILE, "w") as f:
-                    json.dump(datos, f, indent=4)
+        desarrollos_data = json.load(f)
+else:
+    desarrollos_data = {}
 
 st_cols_so = st.columns(3)
 sist_operativo = st_cols_so[1].selectbox("Selecciona tu Sistema Operativo", options=["Linux", "Windows"])
 
-st.header("Desarrollos")
+st.header("Agregar un Nuevo Desarrollo")
 
 st_col_name, st_col_port = st.columns([3, 1])
 
 nombre_input = st_col_name.text_input("Ruta y nombre del Desarrollo (ruta/al/proyecto/app.py)", "")
 puerto_input = st_col_port.text_input("Puerto del Desarrollo", "")
 config_input = st.text_input("Configuración adicional", "")
-
-ruta_proyecto, nombre_script = os.path.split(nombre_input)
 
 if st.button("Agregar"):
     if not nombre_input:
@@ -57,29 +36,30 @@ if st.button("Agregar"):
     elif not puerto_disponible(int(puerto_input)):
         st.warning("El puerto ingresado ya está en uso. Por favor, elige otro.")
     else:
-        st.session_state.desarrollos.append(nombre_input)
-        st.session_state.nombre.append(nombre_script)
-        st.session_state.puertos.append(int(puerto_input))
-        st.session_state.config.append(config_input)
-        st.session_state.status.append("Ejecutando")
-        st.session_state.num_desarrollos += 1
-
         add_app(nombre_input, puerto_input, config_input, PID_FILE, sist_operativo)
 
-for i in range(st.session_state.num_desarrollos):
+st.header("Desarrollos Actuales")
+
+for keys_desarr, values_desarr in desarrollos_data.items():
+    ruta = values_desarr["ruta"]
+    puerto = values_desarr["puerto"]
+    estado = values_desarr.get("status", "Detenido")
+
     st_cols_header = st.columns(3)
 
     with st_cols_header[0]:
-        st.markdown(f"**Desarrollo:** {nombre_script}")
+        st.markdown(f"**Desarrollo:** {keys_desarr}")
 
     with st_cols_header[1]:
-        estado = "Ejecutando"
-        color = "#32CD32"
+        color = "#00FF00" if estado == "Ejecutando" else "#FF0000"
+        boton_txt = "Tirar" if estado == "Ejecutando" else "Levantar"
         st.markdown(f"<p style='color:{color}; font-weight:bold;'>{estado}</p>", unsafe_allow_html=True)
-        st.write("Puerto:", st.session_state.puertos[i])
+        st.write("Puerto:", puerto)
 
     with st_cols_header[2]:
-        Tirar = st.button(f"Tirar", key=f"Tirar{nombre_script}", use_container_width=True)
-        if Tirar:
-            st.write(f"Parando el desarrollo {nombre_script}")
-            stop_app(nombre_script, PID_FILE)
+        if estado == "Ejecutando":
+            if st.button(f"{boton_txt}", key=f"{keys_desarr}_tirar", use_container_width=True):
+                stop_app(keys_desarr, PID_FILE)
+        else:
+            if st.button(f"{boton_txt}", key=f"{keys_desarr}_levantar", use_container_width=True):
+                levantar_app(keys_desarr, PID_FILE, sist_operativo)

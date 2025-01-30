@@ -1,5 +1,4 @@
 import os
-import subprocess
 import json
 import streamlit as st
 
@@ -7,6 +6,7 @@ from utils.config_input import parsear_config
 from utils.config_input import configuracion
 
 def add_app(name, puerto, config, pid_file, so):
+    
     ruta_proyecto, nombre_script = os.path.split(name)
 
     config_dict = parsear_config(config)
@@ -38,36 +38,22 @@ def add_app(name, puerto, config, pid_file, so):
     with open(script_sh, "w") as f:
         f.write(script_content_sh)
 
-    if so == "Windows":
-        process = subprocess.Popen(
-            script_bat,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            shell=True
-        )
-    else:
-        process = subprocess.Popen(
-            ["bash", script_sh],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            preexec_fn=os.setsid
-        )
-
-    data = {}
     if os.path.exists(pid_file):
         with open(pid_file, "r") as f:
             data = json.load(f)
+    else:
+        data = {}
 
     data[nombre_script] = {
-        "nombre": nombre_script,
-        "ruta_completa": name,
-        "pid": process.pid,
+        "pid": None,
         "puerto": puerto,
-        "status": "Ejecutando",
+        "nombre": nombre_script,
+        "ruta": name,
+        "status": "Detenido",
         **config_dict
     }
 
     with open(pid_file, "w") as f:
         json.dump(data, f, indent=4)
 
-    st.success(f"Desarrollo {nombre_script} fue iniciado con éxito")
+    st.success(f"{nombre_script} agregado en el JSON :D")

@@ -4,6 +4,7 @@ import json
 import streamlit as st
 
 def stop_app(name, pid_file):
+        
         with open(pid_file, "r") as f:
             data = json.load(f)
 
@@ -13,5 +14,6 @@ def stop_app(name, pid_file):
         st.success(f"El desarrollo {name} fue detenido con éxito.")
 
         data[name]["status"] = "Detenido"
+        
         with open(pid_file, "w") as f:
             json.dump(data, f, indent = 4)
