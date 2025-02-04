@@ -24,7 +24,7 @@ st.header("Agregar un Nuevo Desarrollo")
 
 st_col_name, st_col_port = st.columns([3, 1])
 
-nombre_input = st_col_name.text_input("Ruta y nombre del Desarrollo (ruta/al/proyecto/app.py)", "")
+nombre_input = st_col_name.text_input("Ruta y nombre del Desarrollo (p.ej.:ruta/al/proyecto/app.py)", "")
 puerto_input = st_col_port.text_input("Puerto del Desarrollo", "")
 config_input = st.text_input("Configuración adicional", "")
 
